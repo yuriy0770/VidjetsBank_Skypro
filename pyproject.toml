@@ -1,0 +1,33 @@
+[project]
+name = "skypro-project1"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "origin",email = "yura28049119@yandex.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv (>=1.0.1,<2.0.0)",
+    "pytest (>=8.3.5,<9.0.0)",
+    "responses (>=0.25.7,<0.26.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.link.dependencies]
+black = "^25.1.0"
+mypy = "^1.15.0"
+flake8 = "^7.1.2"
+isort = "^6.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pandas = "^2.2.3"
+requests = "^2.32.3"
+openpyxl = "^3.1.5"
+pytest-cov = "^6.0.0"
+
