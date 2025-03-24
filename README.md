@@ -10,6 +10,6 @@
 
 git clone https://github.com/yuriy0770/VitjetsBank.git
 
-##Установите зависимости:
+## Установите зависимости: ##
 
 pip install -r requirements.txt
