@@ -31,3 +31,12 @@ requests = "^2.32.3"
 openpyxl = "^3.1.5"
 pytest-cov = "^6.0.0"
 
+[tool.black]
+line_length = 88
+
+[tool.isort]
+profiles = ['black']
+use_autofix = true
+
+[tool.mypy]
+python_version = '3.13'
