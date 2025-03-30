@@ -13,3 +13,16 @@ git clone https://github.com/yuriy0770/VitjetsBank.git
 ## Установите зависимости: ##
 
 pip install -r requirements.txt
+
+## Тестирование ##
+
+Тесты написаны на библиотеке pytest
+
+## Ресурсы ##
+
+Цены на валюты были взыты с сайта https://apilayer.com/
+
+Цены на акции были взыты с сайта https://api-ninjas.com/
+
+
+## Ссылка на профиль GitHub автора проекта: https://github.com/yuriy0770 ##
