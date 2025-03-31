@@ -1,14 +1,15 @@
 import logging
 import os
 from datetime import datetime
-from pprint import pprint
 
 import requests
 from dotenv import load_dotenv
 
+program_dir = os.path.join(os.path.dirname(__file__), "logs")
+absolute_json_file_path = os.path.join(program_dir, "services.log")
 logging.basicConfig(
     level=logging.DEBUG,
-    filename=r"C:\Users\User\skypro_project1\logs\utils.log",
+    filename=absolute_json_file_path,
     filemode="w",
     encoding="utf-8",
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
@@ -16,17 +17,16 @@ logging.basicConfig(
 
 logger = logging.getLogger("parser_stocs")
 logger1 = logging.getLogger("parser_currency")
-logger2 = logging.getLogger("analyze_transactions")
 logger3 = logging.getLogger("date_func")
 
 load_dotenv(".env")
 
 API_KEY = os.getenv("API_KEY")
 API_KEY2 = os.getenv("API_KEY2")
-
+stocks = os.getenv("stocks")
 
 def parser_stocs():
-    '''Парсит цены акций'''
+    """Парсит цены акций"""
     logger.info("Создаем список")
     json_file = []
     logger.info("Создаем словарь")
@@ -50,7 +50,7 @@ def parser_stocs():
 
 
 def parser_currency():
-    '''Парсит стоимость валюты'''
+    """Парсит стоимость валюты"""
     currency = ["USD", "EUR"]
     logger1.info("Создаем список")
     json_file = []
@@ -76,7 +76,7 @@ def parser_currency():
 
 
 def date_func():
-    '''Возвращает приветствие в зависимости от часа дня'''
+    """Возвращает приветствие в зависимости от часа дня"""
     logger3.info("Начало работы функции")
     dt_to = datetime.now()
     hour = dt_to.hour
@@ -97,4 +97,3 @@ def date_func():
     logger3.info("Возвращаем словарь")
     logger3.info("Завершение работы")
     return dict_time
-

@@ -40,3 +40,4 @@ use_autofix = true
 
 [tool.mypy]
 python_version = '3.13'
+

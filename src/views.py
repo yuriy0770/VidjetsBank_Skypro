@@ -1,16 +1,15 @@
-import json
 import logging
+import os
 
-from pprint import pprint
-from typing import Dict, List, Any
+from typing import Any
 
 import pandas as pd
 
-from src.utils import date_func, parser_currency, parser_stocs
-
+program_dir = os.path.join(os.path.dirname(__file__), "logs")
+absolute_json_file_path = os.path.join(program_dir, "views.log")
 logging.basicConfig(
     level=logging.DEBUG,
-    filename=r"C:\Users\User\skypro_project1\logs\views.log",
+    filename=absolute_json_file_path,
     filemode="w",
     encoding="utf-8",
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
@@ -19,7 +18,9 @@ logging.basicConfig(
 logger = logging.getLogger("analyze_transactions")
 
 
-def analyze_transactions(date_str: str) -> list[dict[str, list[dict[str, str | Any]] | Any] | Any]:
+def analyze_transactions(
+    date_str: str,
+) -> list[dict[str, list[dict[str, str | Any]] | Any] | Any]:
     """Выводит данные по переданной дате"""
     logger.info("Читаем данные из файла operations.xlsx в DataFrame")
     df = pd.read_excel(r"C:\Users\User\skypro_project1\data\operations.xlsx")
@@ -34,7 +35,7 @@ def analyze_transactions(date_str: str) -> list[dict[str, list[dict[str, str | A
     end_date = start_date + pd.DateOffset(days=1) - pd.DateOffset(seconds=1)
     df_filtered = df.loc[
         (df["Дата операции"] >= start_date) & (df["Дата операции"] < end_date)
-        ]
+    ]
     top_transactions = df_filtered.nlargest(5, "Сумма операции с округлением")
     top_transactions_dict = top_transactions.to_dict(orient="records")
     logger.info("Создаем список словарей из данных в DataFrame")
@@ -58,5 +59,3 @@ def analyze_transactions(date_str: str) -> list[dict[str, list[dict[str, str | A
     logger.info("Завершение работы")
 
     return dict_tr
-
-
