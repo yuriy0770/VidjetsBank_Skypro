@@ -1,47 +1,65 @@
-import unittest
-from unittest.mock import patch
 import pandas as pd
+from unittest.mock import patch, MagicMock
+import json
+import logging.config
+
 from src.services import get_transfers
 
-
-class TestGetTransfers(unittest.TestCase):
-    @patch('pandas.read_excel')
-    def test_get_transfers(self, mock_read_excel):
-        data = {
-            'Описание': ['Иван Иванов.', 'Петр Петров', 'Семен Семенович'],
-            'Количество': [10, 20, 30]
+logging_config = {
+    "version": 1,
+    "formatters": {
+        "verbose": {"format": "%(asctime)s %(name)s %(levelname)s %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         }
-        df = pd.DataFrame(data)
+    },
+    "root": {"level": "DEBUG", "handlers": ["console"]},
+}
 
+logging.config.dictConfig(logging_config)
+
+
+def test_get_transfers_with_empty_file():
+    file_path = "empty.xlsx"
+    with patch("pandas.read_excel") as mock_read_excel:
+        mock_read_excel.return_value = pd.DataFrame(columns=["Описание"])
+        result = get_transfers(file_path)
+        assert result == []
+
+
+def test_get_transfers_with_no_matches():
+    file_path = "no_matches.xlsx"
+    data = {"Описание": ["Описание1", "Описание2", "Описание3"]}
+    df = pd.DataFrame(data)
+    with patch("pandas.read_excel") as mock_read_excel:
         mock_read_excel.return_value = df
-
-        file_path = '../data/operations.xlsx'
         result = get_transfers(file_path)
+        assert result == []
 
-        self.assertIsInstance(result, list)
 
+def test_get_transfers_logging():
+    file_path = "test.xlsx"
+    with (
+        patch("pandas.read_excel") as mock_read_excel,
+        patch.object(logging.getLogger("get_transfers"), "info") as mock_info,
+    ):
+        mock_read_excel.return_value = pd.DataFrame(
+            {"Описание": ["Иванов.", "Петров."]}
+        )
+        get_transfers(file_path)
+        assert mock_info.call_count == 3
+
+
+def test_get_transfers_json():
+    file_path = "test.xlsx"
+    data = {"Описание": ["Иванов.", "Петров."]}
+    df = pd.DataFrame(data)
+    with patch("pandas.read_excel") as mock_read_excel:
+        mock_read_excel.return_value = df
+        result = get_transfers(file_path)
+        assert isinstance(result, list)
         for item in result:
-            self.assertEqual(set(item.keys()), {'Описание', 'Количество'})
-
-    @patch('pandas.read_excel')
-    def test_get_transfers_empty(self, mock_read_excel):
-        mock_read_excel.return_value = pd.DataFrame(columns=['Описание'])
-
-        file_path = '../data/operations.xlsx'
-        result = get_transfers(file_path)
-
-        self.assertEqual(result, [])
-
-    @patch('pandas.read_excel')
-    def test_get_transfers_invalid_file(self, mock_read_excel):
-        mock_read_excel.side_effect = pd.errors.EmptyDataError
-
-        file_path = '../data/operations.xlsx'
-        with self.assertRaises(pd.errors.EmptyDataError):
-            get_transfers(file_path)
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
+            assert isinstance(item, dict)

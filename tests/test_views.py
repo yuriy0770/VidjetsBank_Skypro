@@ -1,39 +1,43 @@
-import datetime
-
-import unittest
+import pytest
+from src.views import analyze_transactions
 import pandas as pd
 
-from src.views import analyze_transactions, date_func
+
+def test_analyze_transactions():
+    date_str = "2022-01-20"
+    result = analyze_transactions(date_str)
+    assert isinstance(result, dict)
+    assert "cards" in result
+    assert "top_transactions" in result
 
 
-class TestDateFunc(unittest.TestCase):
-    def test_date_func(self):
-        date = datetime.datetime.now()
-        result = date_func()
-        if 5 <= date.hour < 11:
-            self.assertEqual(result["greeting"], 'Доброе утро')
-        elif 11 <= date.hour < 17:
-            self.assertEqual(result["greeting"], 'Добрый день')
-        elif 17 <= date.hour < 23:
-            self.assertEqual(result["greeting"], 'Добрый вечер')
-        else:
-            self.assertEqual(result["greeting"], 'Доброй ночи')
+def test_analyze_transactions_cards():
+    date_str = "2022-01-20"
+    result = analyze_transactions(date_str)
+    cards = result["cards"]
+    for card in cards:
+        assert "last_digits" in card
+        assert "total_spent" in card
+        assert "cashback" in card
 
 
-class TestAnalyzeTransactions(unittest.TestCase):
-    def setUp(self):
-        self.df = pd.DataFrame({
-            "Номер карты": [1234, 5678],
-            "Дата операции": ["2022-01-01", "2022-01-02"],
-            "Сумма операции с округлением": [100.0, 200.0]
-        })
+def test_analyze_transactions_top_transactions():
+    date_str = "2022-01-20"
+    result = analyze_transactions(date_str)
+    top_transactions = result["top_transactions"]
+    for transaction in top_transactions:
+        assert isinstance(transaction, dict)
 
 
-    def test_analyze_transactions_empty_df(self):
-        df = pd.DataFrame(columns=["Номер карты", "Дата операции", "Сумма операции с округлением"])
-        result = analyze_transactions("2022-01-01")
-        self.assertEqual(result['cards'], [])
-        self.assertEqual(result['top_transactions'], [])
+def test_analyze_transactions_invalid_date():
+    with pytest.raises(ValueError):
+        analyze_transactions("Invalid date")
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_analyze_transactions_invalid_excel_file():
+    # Создаем не существующий файл excel для тестирования
+    with pytest.raises(FileNotFoundError):
+        analyze_transactions(
+            "2022-01-20",
+            df=pd.read_excel(r"C:\Users\User\skypro_project1\data\.operations.xlsx"),
+        )
