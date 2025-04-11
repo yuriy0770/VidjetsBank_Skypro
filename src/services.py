@@ -1,10 +1,10 @@
 import os
-import re
 import logging
 
 import pandas as pd
+import json
 
-program_dir = os.path.join(os.path.dirname(__file__), "logs")
+program_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
 absolute_json_file_path = os.path.join(program_dir, "services.log")
 logging.basicConfig(
     level=logging.DEBUG,
@@ -14,19 +14,32 @@ logging.basicConfig(
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
 )
 
-logger = logging.getLogger("get_transfers")
+logger = logging.getLogger("simple_search")
 
 
-def get_transfers():
-    """Функция возвращает JSON со всеми транзакциями, которые относятся к переводам физлицам."""
-    logger.info("Читаем данные из файла Excel")
-    program_dir = os.path.join(os.path.dirname(__file__), "data")
-    file_path = os.path.join(program_dir, "operations.xlsx")
-    df = pd.read_excel(file_path)
-
-    logger.info("Ищем имена физлиц с точкой")
-    names_pattern = r"\b\w\."
-    transfers_with_name = df[df["Описание"].str.contains(names_pattern, case=False)]
-
-    logger.info("Возвращаем результат в виде JSON-ответа")
-    return transfers_with_name.to_dict(orient="records")
+def simple_search(query):
+    program_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+    absolute_json_file_path = os.path.join(program_dir, "operations.xlsx")
+    logger.info("Читаем данные из excel файла")
+    df = pd.read_excel(absolute_json_file_path)
+    results = []
+    logger.info(
+        "Проверяем, содержит ли строка для поиска (query) в описании или категории транзакции."
+    )
+    try:
+        for index, row in df.iterrows():
+            if (
+                query.lower() in str(row["Описание"]).lower()
+                or query.lower() in str(row["Категория"]).lower()
+            ):
+                result = {
+                    "Дата операции": row["Дата операции"],
+                    "Номер карты": row["Номер карты"],
+                    "Сумма операции": row["Сумма операции"],
+                    "Описание": row["Описание"],
+                }
+                results.append(result)
+    except AttributeError as e:
+        return f"Не правильно передан параметр"
+    logger.info("Возвращаем JSON ответ")
+    return json.dumps(results, ensure_ascii=False, indent=4)

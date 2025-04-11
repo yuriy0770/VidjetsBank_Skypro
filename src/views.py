@@ -1,11 +1,13 @@
+import json
 import logging
 import os
 
-from typing import Any
 
 import pandas as pd
 
-program_dir = os.path.join(os.path.dirname(__file__), "logs")
+from src.utils import date_func, parser_stocs, parser_currency
+
+program_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
 absolute_json_file_path = os.path.join(program_dir, "views.log")
 logging.basicConfig(
     level=logging.DEBUG,
@@ -18,9 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger("analyze_transactions")
 
 
-def analyze_transactions(
-    date_str: str,
-) -> list[dict[str, list[dict[str, str | Any]] | Any] | Any]:
+def analyze_transactions(date_str: str) -> str:
     """Выводит данные по переданной дате"""
     logger.info("Читаем данные из файла operations.xlsx в DataFrame")
     df = pd.read_excel(r"C:\Users\User\skypro_project1\data\operations.xlsx")
@@ -38,6 +38,16 @@ def analyze_transactions(
     ]
     top_transactions = df_filtered.nlargest(5, "Сумма операции с округлением")
     top_transactions_dict = top_transactions.to_dict(orient="records")
+    top_transactions_dict = [
+        {
+            "date": i["Дата платежа"],
+            "amount": i["Сумма операции с округлением"],
+            "category": i["Категория"],
+            "description": i["Описание"],
+        }
+        for i in top_transactions_dict
+    ]
+
     logger.info("Создаем список словарей из данных в DataFrame")
     result_list = []
     dict_tr = {}
@@ -57,5 +67,10 @@ def analyze_transactions(
 
     logger.info("Возвращаем словарь")
     logger.info("Завершение работы")
-
-    return dict_tr
+    date_fun = date_func()
+    dict_tr.update(date_fun)
+    parser_st = parser_stocs()
+    dict_tr.update(parser_st)
+    parser_cur = parser_currency()
+    dict_tr.update(parser_cur)
+    return json.dumps(dict_tr, ensure_ascii=False, indent=4)

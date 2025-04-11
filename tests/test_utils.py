@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 
-
 from src.utils import date_func, parser_stocs, parser_currency
 
 from unittest.mock import Mock, patch
@@ -132,3 +131,11 @@ def test_date_func():
         assert date_func() == {"greeting": "Добрый день"}
     elif 17 <= result_hour < 23:
         assert date_func() == {"greeting": "Добрый вечер"}
+
+def test_date_func1():
+    result = datetime.now()
+    result_hour = result.hour
+    if result_hour  in [23, 0, 1, 2, 3, 4]:
+        assert date_func() == {"greeting": "Доброй ночи"}
+    else:
+        assert date_func() != {"greeting": "Доброй ночи"}

@@ -1,15 +1,16 @@
 import logging
 import os
 from datetime import datetime
+from typing import Any
 
 import requests
 from dotenv import load_dotenv
 
-program_dir = os.path.join(os.path.dirname(__file__), "logs")
-absolute_json_file_path = os.path.join(program_dir, "services.log")
+program_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+absolute_json_file_path = os.path.join(program_dir, "utils.log")
 logging.basicConfig(
     level=logging.DEBUG,
-    filename=absolute_json_file_path,
+    filename=r"C:\Users\User\skypro_project1\logs\\services.log",
     filemode="w",
     encoding="utf-8",
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
@@ -19,13 +20,13 @@ logger = logging.getLogger("parser_stocs")
 logger1 = logging.getLogger("parser_currency")
 logger3 = logging.getLogger("date_func")
 
-load_dotenv(".env")
+load_dotenv("../.env")
 
 API_KEY = os.getenv("API_KEY")
 API_KEY2 = os.getenv("API_KEY2")
-stocks = os.getenv("stocks")
 
-def parser_stocs():
+
+def parser_stocs() -> str | dict[str, list[dict[str, Any]]]:
     """Парсит цены акций"""
     logger.info("Создаем список")
     json_file = []
@@ -49,7 +50,7 @@ def parser_stocs():
     return dict_file
 
 
-def parser_currency():
+def parser_currency() -> str | dict[str, list[dict[str, Any]]]:
     """Парсит стоимость валюты"""
     currency = ["USD", "EUR"]
     logger1.info("Создаем список")
@@ -75,7 +76,7 @@ def parser_currency():
     return dict_file
 
 
-def date_func():
+def date_func() -> dict[str, str]:
     """Возвращает приветствие в зависимости от часа дня"""
     logger3.info("Начало работы функции")
     dt_to = datetime.now()
